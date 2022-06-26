@@ -1,6 +1,12 @@
 import Layout from '@/Layouts/Main.layout';
 import { Button, Flex, Image, Spinner, Text } from '@chakra-ui/react';
-import { useAddress, useEdition, useMetamask } from '@thirdweb-dev/react';
+import {
+    ChainId,
+    useAddress,
+    useEdition,
+    useMetamask,
+    useNetwork,
+} from '@thirdweb-dev/react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -13,6 +19,7 @@ const Surprise = () => {
     const [loading, setLoading] = useState(false);
     const [hasNFT, setHasNFT] = useState(false);
     const [claimLoading, setClaimLoading] = useState(false);
+    const network = useNetwork();
 
     const buttonStyles = {
         backdropFilter: 'blur(16px) saturate(180%)',
@@ -110,8 +117,25 @@ const Surprise = () => {
                 >
                     Here is a gift for you, you can mint 100 $MUTANT tokens
                 </Text>
-                <Button onClick={() => mintTokens()}>
-                    {claimLoading ? <Spinner /> : 'Claim 100 $MUTANT tokens'}
+                <Button
+                    disabled={
+                        claimLoading ||
+                        network[0].data.chain.id !== ChainId.Mumbai
+                    }
+                    onClick={() => mintTokens()}
+                    cursor={
+                        loading || network[0].data.chain.id !== ChainId.Mumbai
+                            ? 'not-allowed'
+                            : 'pointer'
+                    }
+                >
+                    {claimLoading ? (
+                        <Spinner />
+                    ) : network[0].data.chain.id !== ChainId.Mumbai ? (
+                        'Switch to Mumbai'
+                    ) : (
+                        'Claim 100 $MUTANT tokens'
+                    )}
                 </Button>
             </Flex>
         </Layout>

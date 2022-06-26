@@ -1,6 +1,12 @@
 import Layout from '@/Layouts/Main.layout';
 import { Button, Link, Spinner, Text } from '@chakra-ui/react';
-import { useAddress, useEdition, useMetamask } from '@thirdweb-dev/react';
+import {
+    ChainId,
+    useAddress,
+    useEdition,
+    useMetamask,
+    useNetwork,
+} from '@thirdweb-dev/react';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import Image from 'next/image';
@@ -12,6 +18,8 @@ const Mint: NextPage = () => {
     const connectMetamask = useMetamask();
     const [loading, setLoading] = useState(false);
     const edition = useEdition(process.env.NEXT_PUBLIC_EDITION_ADDRESS);
+    const network = useNetwork();
+
 
     const handleClick = async () => {
         setLoading(true);
@@ -70,12 +78,24 @@ const Mint: NextPage = () => {
             </Text>
             {address ? (
                 <Button
-                    disabled={loading}
+                    disabled={
+                        loading || network[0].data.chain.id !== ChainId.Mumbai
+                    }
                     mt="4"
-                    cursor={loading ? 'not-allowed' : 'pointer'}
+                    cursor={
+                        loading || network[0].data.chain.id !== ChainId.Mumbai
+                            ? 'not-allowed'
+                            : 'pointer'
+                    }
                     onClick={handleClick}
                 >
-                    {loading ? <Spinner /> : 'Mint Access Pass'}
+                    {loading ? (
+                        <Spinner />
+                    ) : network[0].data.chain.id !== ChainId.Mumbai ? (
+                        'Switch to Mumbai'
+                    ) : (
+                        'Mint Access Pass'
+                    )}
                 </Button>
             ) : (
                 <Button mt="4" onClick={() => connectMetamask()}>
